@@ -1,0 +1,5 @@
+{
+  "name": "SonicVault - Local PWA Music Player",
+  "description": "A high-performance, local-first music player PWA built with React, Tailwind, and IndexedDB. Features file system access, metadata parsing, and a virtualized library view.",
+  "requestFramePermissions": []
+}
