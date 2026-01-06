@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download } from 'lucide-react';
+import { Download, Smartphone } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 
 interface Props {
@@ -9,11 +9,10 @@ interface Props {
 const InstallButton: React.FC<Props> = ({ mobile }) => {
   const { isInstallable, installApp } = usePWAInstall();
 
-  // Jika browser tidak support PWA atau sudah terinstall, jangan render apa-apa
   if (!isInstallable) return null;
 
   if (mobile) {
-    // Style Mobile: Icon kecil di Navigasi Bawah
+    // Mobile: Icon kecil di Nav Bar (Simple)
     return (
       <button 
         onClick={installApp}
@@ -25,15 +24,33 @@ const InstallButton: React.FC<Props> = ({ mobile }) => {
     );
   }
 
-  // Style Desktop: Tombol Panjang di Sidebar
+  // Desktop: Premium Banner Style
   return (
-    <button
-      onClick={installApp}
-      className="w-full mb-3 group border border-[#fa2d48]/50 bg-[#fa2d48]/10 hover:bg-[#fa2d48] text-[#fa2d48] hover:text-white rounded-xl px-4 py-3 flex items-center justify-center gap-2 transition-all duration-300"
-    >
-      <Download className="w-5 h-5" />
-      <span className="font-medium text-sm">Install App</span>
-    </button>
+    <div className="px-2 mb-2">
+        <button
+          onClick={installApp}
+          className="
+            group w-full relative overflow-hidden
+            bg-gradient-to-br from-[#fa2d48]/20 to-[#fa2d48]/5 
+            border border-[#fa2d48]/20 hover:border-[#fa2d48]/50
+            rounded-xl p-3 text-left transition-all duration-300
+            hover:shadow-[0_0_20px_rgba(250,45,72,0.15)]
+          "
+        >
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="w-8 h-8 rounded-lg bg-[#fa2d48] flex items-center justify-center shrink-0 shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
+                <Download className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex flex-col">
+                <span className="text-xs font-bold text-white tracking-wide">Install App</span>
+                <span className="text-[10px] text-zinc-400 group-hover:text-zinc-300">Get better performance</span>
+            </div>
+          </div>
+          
+          {/* Decorative Glow */}
+          <div className="absolute -right-4 -top-4 w-12 h-12 bg-[#fa2d48] blur-[40px] opacity-20 group-hover:opacity-40 transition-opacity" />
+        </button>
+    </div>
   );
 };
 

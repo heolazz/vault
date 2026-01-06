@@ -5,7 +5,7 @@ import { useAppStore } from '../store/useAppStore';
 import { Track } from '../types';
 
 const TrackList: React.FC = () => {
-  const { filteredTracks, playTrack, deleteTrack, clearLibrary, currentTrack, isLoading, } = useAppStore();
+  const { filteredTracks, playTrack, deleteTrack, clearLibrary, currentTrack, isLoading } = useAppStore();
 
   const handleDelete = (e: React.MouseEvent, id: number) => {
     e.stopPropagation(); 
@@ -25,7 +25,6 @@ const TrackList: React.FC = () => {
     const trackId = track.id || 0; 
 
     return (
-      // CONTAINER ROW
       <div className="px-4 md:px-6 py-1"> 
         <div 
           onClick={() => playTrack(track)}
@@ -34,117 +33,80 @@ const TrackList: React.FC = () => {
             ${isCurrent ? 'bg-white/10' : 'active:bg-white/5 md:hover:bg-white/5'}
           `}
         >
-          {/* COL 1: INDEX / PLAY ICON (Fixed w-10) */}
+          {/* COL 1: INDEX / INITIALS */}
           <div className="w-10 flex items-center justify-center shrink-0">
-             {/* Mobile: Cover Art */}
              <div className="md:hidden w-9 h-9 bg-zinc-800 rounded-md flex items-center justify-center text-zinc-500 font-bold text-[10px] overflow-hidden">
                 {track.title.charAt(0)}
              </div>
-
-             {/* Desktop: Index */}
              <span className="hidden md:block group-hover:hidden text-xs font-medium text-zinc-500">
                 {isCurrent ? <span className="text-[#fa2d48] animate-pulse">♫</span> : index + 1}
              </span>
-
-             {/* Desktop: Hover Play */}
              <Play className="hidden md:hidden group-hover:block w-3.5 h-3.5 text-[#fa2d48] fill-current" />
           </div>
 
-          {/* COL 2: TITLE (Flex-1) */}
           <div className="flex-1 min-w-0 px-3 md:px-4 flex flex-col justify-center">
             <div className={`text-[15px] md:text-[14px] font-medium truncate ${isCurrent ? 'text-[#fa2d48]' : 'text-zinc-100'}`}>
               {track.title}
             </div>
-            <div className="text-[13px] text-zinc-400 truncate md:hidden mt-0.5">
-              {track.artist}
-            </div>
+            <div className="text-[13px] text-zinc-400 truncate md:hidden mt-0.5">{track.artist}</div>
           </div>
 
-          {/* COL 3: ARTIST (w-[20%]) */}
           <div className="w-[20%] hidden md:flex items-center text-[13px] text-zinc-400 px-2">
             <span className="truncate">{track.artist}</span>
           </div>
-
-          {/* COL 4: ALBUM (w-[20%]) */}
           <div className="w-[20%] hidden lg:flex items-center text-[13px] text-zinc-500 px-2">
             <span className="truncate">{track.album}</span>
           </div>
           
-          {/* COL 5: TIME (w-12) */}
           <div className="w-12 text-right text-xs text-zinc-500 font-mono hidden sm:block">
              {Math.floor(track.duration / 60)}:{(Math.floor(track.duration % 60)).toString().padStart(2, '0')}
           </div>
 
-          {/* COL 6: ACTION DELETE (w-16) - Dedicted Column */}
           <div className="w-10 md:w-16 flex items-center justify-end md:justify-center pl-2">
              <button
                 onClick={(e) => handleDelete(e, trackId)}
-                className="
-                    p-2 rounded-full
-                    text-zinc-600 hover:text-red-500 hover:bg-red-500/10
-                    transition-all duration-200
-                    opacity-100 md:opacity-0 md:group-hover:opacity-100
-                "
+                className="p-2 rounded-full text-zinc-600 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 opacity-100 md:opacity-0 md:group-hover:opacity-100"
                 title="Delete Song"
              >
                 <Trash2 className="w-5 h-5 md:w-4 md:h-4" />
              </button>
           </div>
-
         </div>
       </div>
     );
   };
 
   if (isLoading) return <div className="flex-1 flex items-center justify-center text-zinc-500 bg-[#1c1c1e] h-full">Loading...</div>;
-  
-  if (!filteredTracks.length) return (
-      <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 h-full bg-[#1c1c1e] pb-32">
-          <p className="mb-2">Library Empty</p>
-          <p className="text-xs opacity-50">Add songs to start listening</p>
-      </div>
-  );
+  if (!filteredTracks.length) return <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 h-full bg-[#1c1c1e] pb-32"><p className="mb-2">Library Empty</p></div>;
 
   return (
-    <div className="flex-1 flex flex-col bg-[#1c1c1e] min-h-0 pb-48 md:pb-40">
+    // PERUBAHAN 1: Hapus 'pb-48 md:pb-40' dari sini. Biarkan container full height.
+    <div className="flex-1 flex flex-col bg-[#1c1c1e] min-h-0">
       
-      {/* HEADER ROW (Sticky) */}
       <div className="flex items-center px-4 md:px-6 h-10 border-b border-white/5 bg-[#1c1c1e] sticky top-0 z-10 shrink-0">
-          
-          {/* 1. HASHTAG (#) */}
-          <div className="w-10 text-center hidden md:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">#</div>
-          
-          {/* 2. TITLE */}
-          <div className="flex-1 px-3 md:px-4 text-xs font-semibold text-zinc-500 uppercase tracking-wide">Title</div>
-          
-          {/* 3. ARTIST */}
-          <div className="w-[20%] px-2 hidden md:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Artist</div>
-          
-          {/* 4. ALBUM */}
-          <div className="w-[20%] px-2 hidden lg:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Album</div>
-          
-          {/* 5. TIME */}
-          <div className="w-12 text-right hidden sm:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Time</div>
-
-          {/* 6. ACTION (CLEAR ALL) */}
-          {/* Kolom khusus Action, sejajar dengan tombol delete di bawah */}
-          <div className="w-10 md:w-16 flex justify-end md:justify-center pl-2">
-            <button 
-                onClick={handleClearAll}
-                className="flex items-center justify-center text-zinc-500 hover:text-red-500 transition-colors"
-                title="Clear All Library"
-            >
-                {/* Icon Only di Header agar muat dan rapi */}
+         <div className="w-10 text-center hidden md:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">#</div>
+         <div className="flex-1 px-3 md:px-4 text-xs font-semibold text-zinc-500 uppercase tracking-wide">Title</div>
+         <div className="w-[20%] px-2 hidden md:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Artist</div>
+         <div className="w-[20%] px-2 hidden lg:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Album</div>
+         <div className="w-12 text-right hidden sm:block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Time</div>
+         <div className="w-10 md:w-16 flex justify-end md:justify-center pl-2">
+            <button onClick={handleClearAll} className="flex items-center justify-center text-zinc-500 hover:text-red-500 transition-colors" title="Clear All">
                 <XCircle className="w-4 h-4 md:w-4 md:h-4" />
             </button>
-          </div>
+         </div>
       </div>
       
       <div className="flex-1 min-h-0">
         <Virtuoso 
-          style={{ height: '100%' }} 
-          data={filteredTracks} 
-          itemContent={renderRow} 
+            style={{ height: '100%' }} 
+            data={filteredTracks} 
+            itemContent={renderRow}
+            // PERUBAHAN 2: Tambahkan Spacer/Footer di dalam list
+            // Mobile: h-48 (192px) cukup untuk melewati Nav & Mini Player
+            // Desktop: h-24 (96px) cukup untuk melewati Player Bar
+            components={{
+                Footer: () => <div className="h-48 md:h-24" />
+            }}
         />
       </div>
     </div>

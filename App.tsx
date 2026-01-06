@@ -11,7 +11,6 @@ const App: React.FC = () => {
 
   useEffect(() => { loadLibrary(); }, [loadLibrary]);
 
-  // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === 'INPUT') return;
@@ -26,11 +25,12 @@ const App: React.FC = () => {
   return (
     <div className="h-screen w-screen flex flex-col md:flex-row bg-black text-zinc-200 overflow-hidden font-sans select-none">
       
-      {/* Desktop Sidebar */}
+      {/* Sidebar (Desktop) */}
       <div className="hidden md:flex h-full shrink-0"><Sidebar /></div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#1c1c1e] relative pb-24 md:pb-0">
+      {/* PERUBAHAN: Hapus class 'pb-24' disini agar full height */}
+      <div className="flex-1 flex flex-col min-w-0 bg-[#1c1c1e] relative">
         
         {/* Header */}
         <div className="h-20 md:h-16 flex items-end md:items-center px-6 md:px-8 shrink-0 bg-[#1c1c1e]/80 backdrop-blur-md z-20 sticky top-0 border-b border-white/5 justify-between pb-3 md:pb-0">
@@ -48,10 +48,7 @@ const App: React.FC = () => {
         <TrackList />
       </div>
 
-      {/* Mobile Nav */}
       <MobileNav />
-
-      {/* Player */}
       <Player />
     </div>
   );
