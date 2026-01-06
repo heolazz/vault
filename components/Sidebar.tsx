@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { FolderOpen, Music, Home, Heart, Settings, ListMusic } from 'lucide-react';
 import { handleDirectorySelect, handleFileSelect, isFileSystemSupported } from '../services/fileSystem';
 import { useAppStore } from '../store/useAppStore';
+import InstallButton from './InstallButton'; // Import Baru
 
 const Sidebar: React.FC = () => {
   const { addTracks } = useAppStore();
@@ -60,7 +61,11 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      <div className="px-3 mt-auto"><NavItem icon={Settings} label="Settings" /></div>
+      {/* FOOTER SIDEBAR: Install Button & Settings */}
+      <div className="px-3 mt-auto">
+        <InstallButton /> 
+        <NavItem icon={Settings} label="Settings" />
+      </div>
     </div>
   );
 };

@@ -4,20 +4,31 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
+    // Load env file based on `mode` in the current working directory.
+    // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
     const env = loadEnv(mode, '.', '');
+
     return {
       server: {
         port: 3000,
-        host: '0.0.0.0',
+        host: '0.0.0.0', // Agar bisa diakses dari HP via IP Address
       },
       plugins: [
         react(),
         VitePWA({
           registerType: 'autoUpdate',
-          includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+          
+          // PENTING: Aktifkan PWA di mode development
+          devOptions: {
+            enabled: true
+          },
+
+          // Cache aset statis agar offline-ready
+          includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'images/logo.png'],
+          
           manifest: {
-            name: 'Vault Music',
-            short_name: 'Vault',
+            name: 'SonicVault Music',
+            short_name: 'SonicVault',
             description: 'Local-First Offline Music Player',
             theme_color: '#09090b',
             background_color: '#09090b',
@@ -26,13 +37,14 @@ export default defineConfig(({ mode }) => {
             orientation: 'portrait',
             icons: [
               {
-                src: 'pwa-192x192.png',
+                // Path ini mengarah ke public/images/logo.png
+                src: '/images/logo.png', 
                 sizes: '192x192',
                 type: 'image/png',
                 purpose: 'any maskable'
               },
               {
-                src: 'pwa-512x512.png',
+                src: '/images/logo.png',
                 sizes: '512x512',
                 type: 'image/png',
                 purpose: 'any maskable'

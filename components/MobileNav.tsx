@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
-import { Home, Library, FolderOpen, Search } from 'lucide-react';
+import { Home, Library, FolderOpen } from 'lucide-react';
 import { handleFileSelect, isFileSystemSupported, handleDirectorySelect } from '../services/fileSystem';
 import { useAppStore } from '../store/useAppStore';
+import InstallButton from './InstallButton'; // Import Baru
 
 const MobileNav: React.FC = () => {
   const { addTracks } = useAppStore();
@@ -31,14 +32,27 @@ const MobileNav: React.FC = () => {
     <div className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-[#1c1c1e]/95 backdrop-blur-xl border-t border-white/10 z-40 px-6 flex items-center justify-between pb-4 safe-area-bottom">
       <input type="file" multiple accept="audio/*" ref={fileInputRef} className="hidden" onChange={onFileChange} />
       
-      <div className="flex flex-col items-center gap-1 text-zinc-500"><Home className="w-6 h-6" /><span className="text-[10px]">Home</span></div>
+      {/* KIRI */}
+      <div className="flex flex-col items-center gap-1 text-zinc-500">
+        <Home className="w-6 h-6" />
+        <span className="text-[10px]">Home</span>
+      </div>
       
-      {/* Floating Action Button */}
+      {/* TENGAH (Floating FAB) */}
       <button onClick={onMainAction} className="relative -top-5 bg-[#fa2d48] w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-red-900/50 active:scale-95 transition-transform">
         <FolderOpen className="w-6 h-6 text-white" />
       </button>
 
-      <div className="flex flex-col items-center gap-1 text-white"><Library className="w-6 h-6" /><span className="text-[10px]">Library</span></div>
+      {/* KANAN (Group) */}
+      <div className="flex items-center gap-6">
+          {/* Tombol Install (Otomatis hidden jika sudah install) */}
+          <InstallButton mobile />
+
+          <div className="flex flex-col items-center gap-1 text-white">
+            <Library className="w-6 h-6" />
+            <span className="text-[10px]">Library</span>
+          </div>
+      </div>
     </div>
   );
 };
