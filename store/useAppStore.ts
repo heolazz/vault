@@ -3,19 +3,15 @@ import { Track, PlayerState, LibraryState } from '../types';
 import { db } from '../services/db';
 
 interface AppStore extends PlayerState, LibraryState {
-  // STATE BARU: VIEW MODE
   activeView: 'library' | 'favorites'; 
   setActiveView: (view: 'library' | 'favorites') => void;
 
-  // ACTIONS
   loadLibrary: () => Promise<void>;
   addTracks: (tracks: Track[]) => void;
   deleteTrack: (id: number) => Promise<void>;
   clearLibrary: () => Promise<void>;
-  
-  // ACTION BARU: FAVORITE
   toggleFavorite: (track: Track) => Promise<void>;
-
+  
   playTrack: (track: Track) => void;
   nextTrack: () => void;
   prevTrack: () => void;
@@ -30,9 +26,7 @@ interface AppStore extends PlayerState, LibraryState {
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
-  // Default View
   activeView: 'library',
-  
   tracks: [],
   filteredTracks: [],
   currentTrack: undefined,
@@ -48,53 +42,24 @@ export const useAppStore = create<AppStore>((set, get) => ({
   setActiveView: (view) => {
       set((state) => {
           let newFiltered = state.tracks;
-          
-          // Filter data berdasarkan View yang dipilih
           if (view === 'favorites') {
               newFiltered = state.tracks.filter(t => t.isFavorite);
           }
-
-          return { 
-              activeView: view, 
-              filteredTracks: newFiltered,
-              searchQuery: '' // Reset search saat ganti tab
-          };
+          return { activeView: view, filteredTracks: newFiltered, searchQuery: '' };
       });
   },
 
-  // --- LOGIC TOGGLE FAVORITE ---
   toggleFavorite: async (track) => {
       const newStatus = !track.isFavorite;
-      
-      // 1. Update Database
       await db.tracks.update(track.id, { isFavorite: newStatus });
-
       set((state) => {
-          // 2. Update Master Track List
-          const updatedTracks = state.tracks.map((t) => 
-              t.id === track.id ? { ...t, isFavorite: newStatus } : t
-          );
-
-          // 3. Update Filtered List (agar UI langsung berubah)
-          let updatedFiltered = state.filteredTracks.map((t) => 
-               t.id === track.id ? { ...t, isFavorite: newStatus } : t
-          );
-
-          // Jika sedang di tab Favorites dan kita UN-LIKE, hapus dari list
+          const updatedTracks = state.tracks.map((t) => t.id === track.id ? { ...t, isFavorite: newStatus } : t);
+          let updatedFiltered = state.filteredTracks.map((t) => t.id === track.id ? { ...t, isFavorite: newStatus } : t);
           if (state.activeView === 'favorites' && !newStatus) {
               updatedFiltered = updatedFiltered.filter(t => t.id !== track.id);
           }
-
-          // 4. Update Current Track jika lagu yang sedang diputar di-like
-          const updatedCurrent = state.currentTrack?.id === track.id 
-              ? { ...state.currentTrack, isFavorite: newStatus } 
-              : state.currentTrack;
-
-          return {
-              tracks: updatedTracks,
-              filteredTracks: updatedFiltered,
-              currentTrack: updatedCurrent
-          };
+          const updatedCurrent = state.currentTrack?.id === track.id ? { ...state.currentTrack, isFavorite: newStatus } : state.currentTrack;
+          return { tracks: updatedTracks, filteredTracks: updatedFiltered, currentTrack: updatedCurrent };
       });
   },
 
@@ -109,12 +74,30 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
   },
 
+  // --- REVISI: ANTI-DUPLICATE LOGIC ---
   addTracks: async (newTracks) => {
-    await db.tracks.bulkAdd(newTracks);
+    // 1. Ambil daftar lagu yang SUDAH ada di memory
+    const { tracks } = get();
+
+    // 2. Buat daftar Judul Lagu yang sudah ada agar pencarian cepat (menggunakan Set)
+    //    Kita gunakan 'title' (nama file) sebagai patokan duplikasi.
+    const existingTitles = new Set(tracks.map(t => t.title));
+
+    // 3. Filter track baru: Hanya ambil yang judulnya BELUM ada di Set
+    const uniqueTracks = newTracks.filter(t => !existingTitles.has(t.title));
+
+    // 4. Jika hasilnya kosong (semua lagu sudah ada), hentikan proses.
+    if (uniqueTracks.length === 0) {
+        console.log("No new unique tracks found.");
+        return;
+    }
+
+    // 5. Masukkan HANYA lagu yang unik ke Database
+    await db.tracks.bulkAdd(uniqueTracks);
+
+    // 6. Update State UI
     set((state) => {
-        const updated = [...state.tracks, ...newTracks];
-        // Jika sedang di tab Favorites, jangan langsung tampilkan lagu baru (kecuali logic lain)
-        // Defaultnya kita kembali ke Library agar user sadar ada lagu baru
+        const updated = [...state.tracks, ...uniqueTracks];
         return { 
             tracks: updated, 
             filteredTracks: updated,
@@ -122,6 +105,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
         };
     });
   },
+  // ------------------------------------
 
   deleteTrack: async (id) => {
     await db.tracks.delete(id);
@@ -140,14 +124,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   clearLibrary: async () => {
     await db.tracks.clear();
-    set({ 
-        tracks: [], 
-        filteredTracks: [], 
-        currentTrack: undefined, 
-        isPlaying: false,
-        currentTime: 0,
-        duration: 0
-    });
+    set({ tracks: [], filteredTracks: [], currentTrack: undefined, isPlaying: false, currentTime: 0, duration: 0 });
   },
 
   verifyPermission: async (fileHandle) => {
@@ -162,12 +139,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   setSearchQuery: (query) => {
       set((state) => {
-          // Filter Search harus memperhitungkan View aktif (Library vs Favorites)
           let baseList = state.tracks;
-          if (state.activeView === 'favorites') {
-              baseList = state.tracks.filter(t => t.isFavorite);
-          }
-
+          if (state.activeView === 'favorites') baseList = state.tracks.filter(t => t.isFavorite);
           return {
               searchQuery: query,
               filteredTracks: baseList.filter(t => 
@@ -186,7 +159,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   toggleLoop: () => set((state) => ({ isLoop: !state.isLoop })),
 
   nextTrack: () => {
-    const { filteredTracks, currentTrack, isShuffle } = get(); // Gunakan filteredTracks agar next track sesuai list yang tampil
+    const { filteredTracks, currentTrack, isShuffle } = get();
     if (!currentTrack || filteredTracks.length === 0) return;
     let nextIndex;
     if (isShuffle) {
