@@ -2,7 +2,7 @@
 
 **VaultMusic** is a modern, local-first web music player designed to bring a premium desktop experience to the browser. It allows users to play their local music files with a clean, Apple Music-inspired interface, completely offline.
 
-![VaultMusic Preview](images/preview.png)
+![VaultMusic Preview](/public/images/preview.png)
 
 ## Key Features
 
