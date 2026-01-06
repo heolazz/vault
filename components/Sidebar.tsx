@@ -53,9 +53,6 @@ const Sidebar: React.FC = () => {
       <div className="px-3">
          <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 px-3">Menu</div>
          <nav className="space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all">
-                <Home className="w-5 h-5 stroke-2" /> Listen Now
-            </button>
             <NavItem icon={ListMusic} label="Library" viewName="library" />
             <NavItem icon={Heart} label="Favorites" viewName="favorites" />
          </nav>
