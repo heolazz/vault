@@ -6,6 +6,7 @@ export interface Track {
   title: string;
   artist: string;
   album: string;
+  isFavorite: boolean;
   duration: number; // in seconds
   format: string;
   path: string;
@@ -25,6 +26,13 @@ export interface LibraryState {
   tracks: Track[];
   isLoading: boolean;
   searchQuery: string;
+}
+
+declare global {
+  interface FileSystemFileHandle {
+    queryPermission(descriptor?: { mode: 'read' | 'readwrite' }): Promise<PermissionState>;
+    requestPermission(descriptor?: { mode: 'read' | 'readwrite' }): Promise<PermissionState>;
+  }
 }
 
 export type TrackMetadata = Omit<Track, 'fileHandle' | 'file'>;
