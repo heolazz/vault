@@ -1,11 +1,18 @@
 import React from 'react';
 import { Virtuoso } from 'react-virtuoso';
-import { Trash2, XCircle, Play } from 'lucide-react';
+import { Trash2, XCircle, Play, MoreVertical, ListPlus, PlayCircle, Plus } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Track } from '../types';
 
 const TrackList: React.FC = () => {
-  const { filteredTracks, playTrack, deleteTrack, clearLibrary, currentTrack, isLoading } = useAppStore();
+  const { filteredTracks, playTrack, deleteTrack, clearLibrary, currentTrack, isLoading, addToQueue, playNext } = useAppStore();
+  const [activeMenuId, setActiveMenuId] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const handleDelete = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
@@ -62,14 +69,41 @@ const TrackList: React.FC = () => {
             {Math.floor(track.duration / 60)}:{(Math.floor(track.duration % 60)).toString().padStart(2, '0')}
           </div>
 
-          <div className="w-10 md:w-16 flex items-center justify-end md:justify-center pl-2">
+          <div className="w-10 md:w-16 flex items-center justify-end md:justify-center pl-2 relative">
             <button
-              onClick={(e) => handleDelete(e, trackId)}
-              className="p-2 rounded-full text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 opacity-100 md:opacity-0 md:group-hover:opacity-100"
-              title="Delete Song"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveMenuId(activeMenuId === trackId ? null : trackId);
+              }}
+              className="p-2 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"
             >
-              <Trash2 className="w-5 h-5 md:w-4 md:h-4" />
+              <MoreVertical className="w-5 h-5 md:w-4 md:h-4" />
             </button>
+
+            {/* DATA MENU DROPDOWN */}
+            {activeMenuId === trackId && (
+              <div className="absolute right-8 top-8 md:right-4 md:top-6 w-48 bg-white dark:bg-[#2c2c2e] rounded-xl shadow-xl border border-black/5 dark:border-white/5 py-1 z-50 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                <button
+                  onClick={(e) => { e.stopPropagation(); playNext(track); setActiveMenuId(null); }}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors text-left"
+                >
+                  <PlayCircle className="w-4 h-4" /> Play Next
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); addToQueue(track); setActiveMenuId(null); }}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors text-left"
+                >
+                  <ListPlus className="w-4 h-4" /> Add to Queue
+                </button>
+                <div className="h-px bg-black/5 dark:bg-white/5 my-1" />
+                <button
+                  onClick={(e) => { handleDelete(e, trackId); setActiveMenuId(null); }}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left"
+                >
+                  <Trash2 className="w-4 h-4" /> Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

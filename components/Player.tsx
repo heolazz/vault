@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, ChevronDown, Shuffle, Repeat, Heart } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, ChevronDown, Shuffle, Repeat, Heart, ListMusic, X } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 
 const Player: React.FC = () => {
     const {
-        currentTrack, isPlaying, volume, isShuffle, isLoop,
-        togglePlay, nextTrack, prevTrack, toggleShuffle, toggleLoop, setPlaying, setVolume, toggleFavorite
+        currentTrack, isPlaying, volume, isShuffle, isLoop, queue,
+        togglePlay, nextTrack, prevTrack, toggleShuffle, toggleLoop, setPlaying, setVolume, toggleFavorite,
+        removeFromQueue, clearQueue
     } = useAppStore();
 
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -13,6 +14,7 @@ const Player: React.FC = () => {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [showQueue, setShowQueue] = useState(false);
 
     useEffect(() => {
         const setupAudio = async () => {
@@ -58,19 +60,61 @@ const Player: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-[#2c2c2e] to-[#000000] opacity-50 z-0 pointer-events-none" />
 
                 {/* HEADER */}
-                <div className="relative z-10 flex items-center justify-center pt-12 pb-4">
-                    <button onClick={() => setIsExpanded(false)} className="w-12 h-1 bg-zinc-600 rounded-full opacity-50 absolute top-4" />
-                    <button onClick={() => setIsExpanded(false)} className="absolute left-6 top-10 text-zinc-400 hover:text-white"><ChevronDown className="w-8 h-8" /></button>
-                    <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase mt-2">Now Playing</span>
+                <div className="relative z-10 flex items-center justify-between pt-12 pb-4 px-8">
+                    <button onClick={() => setIsExpanded(false)} className="w-12 h-1 bg-zinc-600 rounded-full opacity-50 absolute top-4 left-1/2 -translate-x-1/2" />
+                    <button onClick={() => setIsExpanded(false)} className="text-zinc-400 hover:text-white"><ChevronDown className="w-8 h-8" /></button>
+                    <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase mt-2">
+                        {showQueue ? 'Up Next' : 'Now Playing'}
+                    </span>
+                    <button
+                        onClick={() => setShowQueue(!showQueue)}
+                        className={`text-zinc-400 hover:text-white p-2 ${showQueue ? 'text-[#fa2d48]' : ''}`}
+                    >
+                        <ListMusic className="w-6 h-6" />
+                    </button>
                 </div>
 
                 {/* ARTWORK (INITIALS) */}
-                <div className="relative z-10 flex-1 flex items-center justify-center p-8">
-                    <div className="w-full aspect-square bg-zinc-800 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden relative">
-                        <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center text-zinc-500 font-bold text-6xl">
-                            {currentTrack.title.charAt(0)}
+                {/* CONTENT AREA: ARTWORK OR QUEUE */}
+                <div className="relative z-10 flex-1 overflow-hidden">
+                    {showQueue ? (
+                        <div className="h-full overflow-y-auto px-6 py-2">
+                            {queue.length === 0 ? (
+                                <div className="h-full flex items-center justify-center text-zinc-500">Queue is empty</div>
+                            ) : (
+                                <div className="space-y-4 pb-8">
+                                    {queue.map((track, i) => (
+                                        <div key={`${track.id}-${i}`} className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold shrink-0">
+                                                {track.title.charAt(0)}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="text-white font-medium truncate">{track.title}</div>
+                                                <div className="text-zinc-500 text-sm truncate">{track.artist}</div>
+                                            </div>
+                                            <button onClick={() => removeFromQueue(track.id)} className="text-zinc-500 p-2">
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        onClick={clearQueue}
+                                        className="w-full py-3 mt-4 text-[#fa2d48] font-medium text-sm bg-[#fa2d48]/10 rounded-xl"
+                                    >
+                                        Clear Queue
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center p-8">
+                            <div className="w-full aspect-square bg-zinc-800 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden relative">
+                                <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center text-zinc-500 font-bold text-6xl">
+                                    {currentTrack.title.charAt(0)}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* CONTROLS */}
@@ -201,9 +245,54 @@ const Player: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center justify-end gap-3 flex-1">
+                    <button
+                        onClick={() => setShowQueue(!showQueue)}
+                        className={`relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${showQueue ? 'text-[#fa2d48]' : 'text-zinc-400 dark:text-zinc-500'}`}
+                        title="Up Next"
+                    >
+                        <ListMusic className="w-5 h-5" />
+                        {queue.length > 0 && (
+                            <span className="absolute top-1 right-1 w-2 h-2 bg-[#fa2d48] rounded-full border border-white dark:border-[#1c1c1e]" />
+                        )}
+                    </button>
                     <Volume2 className="w-4 h-4 text-zinc-400 dark:text-zinc-400" />
                     <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} className="w-20 h-1 bg-zinc-200 dark:bg-zinc-600/30 rounded-lg appearance-none cursor-pointer" />
                 </div>
+
+                {/* DESKTOP QUEUE POPUP */}
+                {showQueue && (
+                    <div className="absolute bottom-[100px] right-6 w-80 bg-white/95 dark:bg-[#252525]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[60vh] animate-in slide-in-from-bottom-5 fade-in duration-200">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-black/5 dark:border-white/5 bg-zinc-50/50 dark:bg-white/5">
+                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Up Next</h3>
+                            {queue.length > 0 && (
+                                <button onClick={clearQueue} className="text-xs text-[#fa2d48] hover:underline font-medium">Clear</button>
+                            )}
+                        </div>
+                        <div className="overflow-y-auto p-2 space-y-1">
+                            {queue.length === 0 ? (
+                                <div className="py-8 text-center text-zinc-400 dark:text-zinc-500 text-xs">Queue is empty</div>
+                            ) : (
+                                queue.map((track, i) => (
+                                    <div key={`${track.id}-${i}`} className="group flex items-center gap-3 p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                        <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 dark:text-zinc-500 shrink-0">
+                                            {track.title.charAt(0)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-medium text-zinc-900 dark:text-white truncate">{track.title}</div>
+                                            <div className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{track.artist}</div>
+                                        </div>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); removeFromQueue(track.id); }}
+                                            className="text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </>
     );

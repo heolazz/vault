@@ -26,6 +26,13 @@ interface AppStore extends PlayerState, LibraryState {
   setSearchQuery: (query: string) => void;
   verifyPermission: (fileHandle: FileSystemFileHandle | undefined) => Promise<boolean>;
   filteredTracks: Track[];
+
+  // Queue System
+  queue: Track[];
+  addToQueue: (track: Track) => void;
+  playNext: (track: Track) => void;
+  removeFromQueue: (trackId: number) => void;
+  clearQueue: () => void;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -42,14 +49,25 @@ export const useAppStore = create<AppStore>((set, get) => ({
   isLoop: false,
   currentTime: 0,
   duration: 0,
+  queue: [], // Initial empty queue
 
   setActiveView: (view) => {
     set((state) => {
-      let newFiltered = state.tracks;
+      let baseList = state.tracks; // Always filter from master list
+      let newFiltered = baseList;
+
       if (view === 'favorites') {
-        newFiltered = state.tracks.filter(t => t.isFavorite);
+        newFiltered = baseList.filter(t => t.isFavorite);
+      } else if (view === 'library') {
+        newFiltered = baseList;
       }
-      return { activeView: view, filteredTracks: newFiltered, searchQuery: '' };
+
+      // Reset search when changing views
+      return {
+        activeView: view,
+        filteredTracks: newFiltered,
+        searchQuery: ''
+      };
     });
   },
 
@@ -165,17 +183,49 @@ export const useAppStore = create<AppStore>((set, get) => ({
   toggleLoop: () => set((state) => ({ isLoop: !state.isLoop })),
 
   nextTrack: () => {
-    const { filteredTracks, currentTrack, isShuffle } = get();
+    const { filteredTracks, currentTrack, isShuffle, queue } = get();
+
+    // 1. Check Queue First
+    if (queue.length > 0) {
+      const nextTrack = queue[0];
+      const newQueue = queue.slice(1);
+      set({ currentTrack: nextTrack, queue: newQueue, isPlaying: true });
+      return;
+    }
+
+    // 2. Fallback to Library/Playlist Logic
     if (!currentTrack || filteredTracks.length === 0) return;
+
     let nextIndex;
+    const currentIndex = filteredTracks.findIndex(t => t.id === currentTrack.id);
+
     if (isShuffle) {
-      nextIndex = Math.floor(Math.random() * filteredTracks.length);
+      // Simple shuffle: pick random index other than current
+      let attempts = 0;
+      do {
+        nextIndex = Math.floor(Math.random() * filteredTracks.length);
+        attempts++;
+      } while (nextIndex === currentIndex && filteredTracks.length > 1 && attempts < 5);
     } else {
-      const currentIndex = filteredTracks.findIndex(t => t.id === currentTrack.id);
       nextIndex = (currentIndex + 1) % filteredTracks.length;
     }
+
     set({ currentTrack: filteredTracks[nextIndex], isPlaying: true });
   },
+
+  // Queue Actions
+  addToQueue: (track) => set((state) => ({ queue: [...state.queue, track] })),
+
+  playNext: (track) => set((state) => {
+    // Insert at the FRONT of the queue
+    return { queue: [track, ...state.queue] };
+  }),
+
+  removeFromQueue: (trackId) => set((state) => ({
+    queue: state.queue.filter(t => t.id !== trackId)
+  })),
+
+  clearQueue: () => set({ queue: [] }),
 
   prevTrack: () => {
     const { filteredTracks, currentTrack } = get();
