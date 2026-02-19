@@ -14,6 +14,7 @@ const Settings: React.FC = () => {
     const textColor = isDark ? 'text-white' : 'text-black';
     const subTextColor = isDark ? 'text-zinc-400' : 'text-zinc-500';
     const borderColor = isDark ? 'border-white/10' : 'border-black/5';
+    const shadowClass = isDark ? 'shadow-lg' : 'shadow-none';
 
     const handleClear = () => {
         if (window.confirm('Are you sure you want to delete all songs?')) clearLibrary();
@@ -30,7 +31,7 @@ const Settings: React.FC = () => {
 
                 <section>
                     <h3 className={`text-xs font-semibold uppercase tracking-wider ${subTextColor} mb-3 pl-1`}>Appearance</h3>
-                    <div className={`${cardColor} rounded-2xl overflow-hidden shadow-lg border ${borderColor} p-1`}>
+                    <div className={`${cardColor} rounded-2xl overflow-hidden ${shadowClass} border ${borderColor} p-1`}>
                         <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-xl p-1 relative">
                             {/* Light Option */}
                             <button
@@ -57,7 +58,7 @@ const Settings: React.FC = () => {
                 {/* SECTION 2: APPLICATION (INSTALL) */}
                 <section>
                     <h3 className={`text-xs font-semibold uppercase tracking-wider ${subTextColor} mb-3 pl-1`}>Application</h3>
-                    <div className={`${cardColor} rounded-2xl overflow-hidden shadow-lg border ${borderColor}`}>
+                    <div className={`${cardColor} rounded-2xl overflow-hidden ${shadowClass} border ${borderColor}`}>
 
                         {isInstallable ? (
                             <div
@@ -96,7 +97,7 @@ const Settings: React.FC = () => {
                 {/* SECTION 3: STORAGE */}
                 <section>
                     <h3 className={`text-xs font-semibold uppercase tracking-wider ${subTextColor} mb-3 pl-1`}>Storage & Data</h3>
-                    <div className={`${cardColor} rounded-2xl overflow-hidden shadow-lg border ${borderColor}`}>
+                    <div className={`${cardColor} rounded-2xl overflow-hidden ${shadowClass} border ${borderColor}`}>
                         <div
                             onClick={handleClear}
                             className="flex items-center justify-between p-4 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
