@@ -18,6 +18,7 @@ export const handleDirectorySelect = async (): Promise<Track[]> => {
         const file = await handle.getFile();
         if (isAudioFile(file)) {
           const track = await parseMetadata(file, handle, pathStr);
+          track.file = file; // Simpan blob agar bisa diputar tanpa permission ulang
           tracks.push(track);
         }
       } else if (handle.kind === 'directory') {

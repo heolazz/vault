@@ -9,8 +9,10 @@ const MobileNav: React.FC = () => {
   const { addTracks, activeView, setActiveView } = useAppStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
   const onImport = async () => {
-    if (isFileSystemSupported()) {
+    if (!isMobile && isFileSystemSupported()) {
       try {
         const tracks = await handleDirectorySelect();
         if (tracks.length) addTracks(tracks);
