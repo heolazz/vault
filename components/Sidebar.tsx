@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { FolderOpen, Home, Heart, Settings, ListMusic, PlusCircle } from 'lucide-react';
 import { handleDirectorySelect, handleFileSelect, isFileSystemSupported } from '../services/fileSystem';
 import { useAppStore } from '../store/useAppStore';
-import InstallButton from './InstallButton';
 
 const Sidebar: React.FC = () => {
   const { addTracks, activeView, setActiveView } = useAppStore();
@@ -92,8 +91,7 @@ const Sidebar: React.FC = () => {
       {/* --- BOTTOM SECTION --- */}
       <div className="mt-auto px-3 space-y-1">
 
-        {/* Tombol Install App (Banner Style) */}
-        <InstallButton />
+
 
         <motion.button
           whileTap={{ scale: 0.95 }}

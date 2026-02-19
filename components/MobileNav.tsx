@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ListMusic, Heart, Plus, Settings } from 'lucide-react';
 import { handleFileSelect, isFileSystemSupported, handleDirectorySelect } from '../services/fileSystem';
 import { useAppStore } from '../store/useAppStore';
-import InstallButton from './InstallButton';
+
 
 const MobileNav: React.FC = () => {
   const { addTracks, activeView, setActiveView } = useAppStore();
