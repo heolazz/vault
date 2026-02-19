@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Override dark mode to use .dark class strategy (Tailwind v4) */
+@variant dark (&:where(.dark, .dark *));
