@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Play, Pause, SkipBack, SkipForward, Volume2, ChevronDown, Shuffle, Repeat, Heart, ListMusic, X } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 
@@ -142,13 +143,13 @@ const Player: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex items-center justify-between mt-2">
-                        <button onClick={toggleShuffle} className={`${isShuffle ? 'text-[#fa2d48]' : 'text-zinc-500'} transition-colors`}><Shuffle className="w-6 h-6" /></button>
-                        <button onClick={prevTrack} className="text-white active:scale-90 transition-transform"><SkipBack className="w-10 h-10 fill-current" /></button>
-                        <button onClick={togglePlay} className="w-20 h-20 bg-[#fa2d48] rounded-full flex items-center justify-center shadow-lg shadow-red-900/40 active:scale-95 transition-transform">
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={toggleShuffle} className={`${isShuffle ? 'text-[#fa2d48]' : 'text-zinc-500'} transition-colors`}><Shuffle className="w-6 h-6" /></motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={prevTrack} className="text-white active:scale-90 transition-transform"><SkipBack className="w-10 h-10 fill-current" /></motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={togglePlay} className="w-20 h-20 bg-[#fa2d48] rounded-full flex items-center justify-center shadow-lg shadow-red-900/40 active:scale-95 transition-transform">
                             {isPlaying ? <Pause className="w-10 h-10 fill-white" /> : <Play className="w-10 h-10 fill-white ml-1" />}
-                        </button>
-                        <button onClick={nextTrack} className="text-white active:scale-90 transition-transform"><SkipForward className="w-10 h-10 fill-current" /></button>
-                        <button onClick={toggleLoop} className={`${isLoop ? 'text-[#fa2d48]' : 'text-zinc-500'} transition-colors`}><Repeat className="w-6 h-6" /></button>
+                        </motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={nextTrack} className="text-white active:scale-90 transition-transform"><SkipForward className="w-10 h-10 fill-current" /></motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={toggleLoop} className={`${isLoop ? 'text-[#fa2d48]' : 'text-zinc-500'} transition-colors`}><Repeat className="w-6 h-6" /></motion.button>
                     </div>
                     <div className="flex items-center gap-3 mt-4 px-2">
                         <Volume2 className="w-5 h-5 text-zinc-500" />
@@ -229,11 +230,11 @@ const Player: React.FC = () => {
 
                 <div className="flex flex-col items-center justify-center flex-[2] max-w-2xl gap-1">
                     <div className="flex items-center gap-6">
-                        <button onClick={prevTrack} className="text-zinc-400 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors"><SkipBack className="w-5 h-5 fill-current" /></button>
-                        <button onClick={togglePlay} className="w-8 h-8 flex items-center justify-center bg-zinc-900 text-white dark:bg-white dark:text-black rounded-full hover:scale-105 transition-transform">
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={prevTrack} className="text-zinc-400 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors"><SkipBack className="w-5 h-5 fill-current" /></motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={togglePlay} className="w-8 h-8 flex items-center justify-center bg-zinc-900 text-white dark:bg-white dark:text-black rounded-full hover:scale-105 transition-transform">
                             {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
-                        </button>
-                        <button onClick={nextTrack} className="text-zinc-400 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors"><SkipForward className="w-5 h-5 fill-current" /></button>
+                        </motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={nextTrack} className="text-zinc-400 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition-colors"><SkipForward className="w-5 h-5 fill-current" /></motion.button>
                     </div>
                     <div className="w-full flex items-center gap-3 text-[10px] font-medium text-zinc-400 dark:text-zinc-500 font-mono mt-1 transition-colors">
                         <span className="w-8 text-right">{formatTime(currentTime)}</span>
@@ -245,7 +246,8 @@ const Player: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center justify-end gap-3 flex-1">
-                    <button
+                    <motion.button
+                        whileTap={{ scale: 0.9 }}
                         onClick={() => setShowQueue(!showQueue)}
                         className={`relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${showQueue ? 'text-[#fa2d48]' : 'text-zinc-400 dark:text-zinc-500'}`}
                         title="Up Next"
@@ -254,7 +256,7 @@ const Player: React.FC = () => {
                         {queue.length > 0 && (
                             <span className="absolute top-1 right-1 w-2 h-2 bg-[#fa2d48] rounded-full border border-white dark:border-[#1c1c1e]" />
                         )}
-                    </button>
+                    </motion.button>
                     <Volume2 className="w-4 h-4 text-zinc-400 dark:text-zinc-400" />
                     <input type="range" min="0" max="1" step="0.01" value={volume} onChange={(e) => setVolume(parseFloat(e.target.value))} className="w-20 h-1 bg-zinc-200 dark:bg-zinc-600/30 rounded-lg appearance-none cursor-pointer" />
                 </div>

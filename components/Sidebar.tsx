@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { FolderOpen, Home, Heart, Settings, ListMusic, PlusCircle } from 'lucide-react';
 import { handleDirectorySelect, handleFileSelect, isFileSystemSupported } from '../services/fileSystem';
 import { useAppStore } from '../store/useAppStore';
@@ -28,13 +29,14 @@ const Sidebar: React.FC = () => {
   const NavItem = ({ icon: Icon, label, viewName }: any) => {
     const isActive = activeView === viewName;
     return (
-      <button
+      <motion.button
+        whileTap={{ scale: 0.95 }}
         onClick={() => setActiveView(viewName)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200 ${isActive ? 'bg-[#fa2d48]/10 text-[#fa2d48]' : 'text-zinc-500 hover:text-zinc-900 group-hover:bg-black/5 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/5'}`}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive ? 'bg-[#fa2d48]/10 text-[#fa2d48]' : 'text-zinc-500 hover:text-zinc-900 group-hover:bg-black/5 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/5'}`}
       >
         <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
         {label}
-      </button>
+      </motion.button>
     );
   };
 
@@ -65,14 +67,15 @@ const Sidebar: React.FC = () => {
         <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 px-3">Library</div>
 
         {/* Tombol Open Folder yang Lebih Premium */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.98 }}
           onClick={onSelectFolder}
           className="
                 w-full group relative overflow-hidden
                 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700
                 border border-black/5 hover:border-black/10 dark:border-white/5 dark:hover:border-white/10
                 text-zinc-900 dark:text-white rounded-xl px-4 py-3 
-                flex items-center gap-3 transition-all duration-300
+                flex items-center gap-3 transition-colors duration-300
                 mb-2
             "
         >
@@ -83,7 +86,7 @@ const Sidebar: React.FC = () => {
             <span className="text-sm font-semibold">Import Music</span>
             <span className="text-[10px] text-zinc-500 group-hover:text-zinc-500 dark:group-hover:text-zinc-300">Folder or Files</span>
           </div>
-        </button>
+        </motion.button>
       </div>
 
       {/* --- BOTTOM SECTION --- */}
@@ -92,12 +95,13 @@ const Sidebar: React.FC = () => {
         {/* Tombol Install App (Banner Style) */}
         <InstallButton />
 
-        <button
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={() => setActiveView('settings')}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all ${activeView === 'settings' ? 'bg-[#fa2d48]/10 text-[#fa2d48]' : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/5'}`}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${activeView === 'settings' ? 'bg-[#fa2d48]/10 text-[#fa2d48]' : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/5'}`}
         >
           <Settings className={`w-5 h-5 ${activeView === 'settings' ? 'stroke-[2.5px]' : 'stroke-2'}`} /> Settings
-        </button>
+        </motion.button>
       </div>
     </div>
   );

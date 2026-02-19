@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import TrackList from './components/TrackList';
 import Player from './components/Player';
@@ -44,9 +45,18 @@ const App: React.FC = () => {
 
         {/* Header */}
         <div className="h-20 md:h-16 flex items-end md:items-center px-6 md:px-8 shrink-0 bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-md z-20 sticky top-0 border-b border-black/5 dark:border-white/5 justify-between pb-3 md:pb-0 transition-colors duration-300">
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
-            {activeView === 'settings' ? 'Settings' : (activeView === 'favorites' ? 'Favorites' : 'Songs')}
-          </h2>
+          <AnimatePresence mode="wait">
+            <motion.h2
+              key={activeView}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight"
+            >
+              {activeView === 'settings' ? 'Settings' : (activeView === 'favorites' ? 'Favorites' : 'Songs')}
+            </motion.h2>
+          </AnimatePresence>
 
           {activeView !== 'settings' && (
             <div className="relative w-full md:w-64 group ml-4">
@@ -59,7 +69,31 @@ const App: React.FC = () => {
           )}
         </div>
 
-        {activeView === 'settings' ? <Settings /> : <TrackList />}
+        <AnimatePresence mode='wait'>
+          {activeView === 'settings' ? (
+            <motion.div
+              key="settings"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="flex-1 overflow-hidden flex flex-col"
+            >
+              <Settings />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="tracklist"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="flex-1 overflow-hidden flex flex-col"
+            >
+              <TrackList />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <MobileNav />

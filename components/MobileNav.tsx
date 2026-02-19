@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { ListMusic, Heart, Plus, Settings } from 'lucide-react';
 import { handleFileSelect, isFileSystemSupported, handleDirectorySelect } from '../services/fileSystem';
 import { useAppStore } from '../store/useAppStore';
@@ -34,13 +35,14 @@ const MobileNav: React.FC = () => {
     const colorClass = isActive ? 'text-[#fa2d48]' : 'text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300';
 
     return (
-      <button
+      <motion.button
+        whileTap={{ scale: 0.9 }}
         onClick={onClick || (() => setActiveView(view))}
-        className={`flex-1 flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform ${colorClass}`}
+        className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${colorClass}`}
       >
         <Icon className={`w-6 h-6 ${isActive ? 'fill-current' : 'stroke-[1.5px]'}`} />
         <span className="text-[10px] font-medium tracking-wide">{label}</span>
-      </button>
+      </motion.button>
     );
   };
 
@@ -66,7 +68,8 @@ const MobileNav: React.FC = () => {
 
         {/* GRUP TENGAH (Tombol Import Floating) */}
         <div className="relative -top-6 mx-2">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={onImport}
             className="
                     w-14 h-14 rounded-full 
@@ -74,11 +77,11 @@ const MobileNav: React.FC = () => {
                     flex items-center justify-center 
                     text-white shadow-[0_8px_16px_rgba(250,45,72,0.4)]
                     border-4 border-white dark:border-[#1c1c1e]
-                    active:scale-90 transition-transform duration-200
+                    transition-opacity duration-200
                 "
           >
             <Plus className="w-7 h-7 stroke-[3px]" />
-          </button>
+          </motion.button>
         </div>
 
         {/* GRUP KANAN (Install & Settings) */}
