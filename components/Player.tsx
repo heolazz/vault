@@ -161,18 +161,18 @@ const Player: React.FC = () => {
             {/* ============================================================== */}
             {/* 2. MINI PLAYER (FLOATING MOBILE)                               */}
             {/* ============================================================== */}
-            <div className="md:hidden fixed left-2 right-2 bottom-[90px] z-[100]">
+            <div className="md:hidden fixed left-0 right-0 bottom-[84px] z-[100]">
                 <div
                     onClick={() => setIsExpanded(true)}
                     className="
-                bg-white/95 dark:bg-[#252525]/95 backdrop-blur-xl border border-black/5 dark:border-white/10 
-                rounded-2xl shadow-xl shadow-black/10 dark:shadow-black/40 
-                h-[64px] flex items-center pr-4 pl-2 
+                bg-white/95 dark:bg-[#252525]/95 backdrop-blur-xl border-t border-black/5 dark:border-white/10 
+                shadow-xl shadow-black/10 dark:shadow-black/40 
+                h-[64px] flex items-center pr-4 pl-4 
                 relative overflow-hidden cursor-pointer 
-                active:scale-[0.98] transition-transform
+                active:bg-black/5 dark:active:bg-white/5 transition-colors
             "
                 >
-                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-black/5 dark:bg-white/5">
+                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-transparent">
                         <div className="h-full bg-[#fa2d48] shadow-[0_0_8px_rgba(250,45,72,0.8)]" style={{ width: `${progressPercent}%` }} />
                     </div>
 
