@@ -6,11 +6,11 @@ export const isFileSystemSupported = () => 'showDirectoryPicker' in window;
 // --- DESKTOP: FOLDER PICKER ---
 export const handleDirectorySelect = async (): Promise<Track[]> => {
   if (!isFileSystemSupported()) return [];
-  
+
   try {
     const dirHandle = await window.showDirectoryPicker();
     const tracks: Track[] = [];
-    
+
     console.log("Scanning folder:", dirHandle.name);
 
     const processEntry = async (handle: any, pathStr: string) => {
@@ -83,6 +83,7 @@ const parseMetadata = async (file: File, handle: any, path: string): Promise<Tra
     title,
     artist,
     album,
+    isFavorite: false,
     duration,
     format: file.type,
     path

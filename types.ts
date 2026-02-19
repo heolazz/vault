@@ -1,8 +1,8 @@
 export interface Track {
   id?: number;
   // Desktop pakai fileHandle, Mobile pakai file langsung
-  fileHandle?: FileSystemFileHandle; 
-  file?: File; 
+  fileHandle?: FileSystemFileHandle;
+  file?: File;
   title: string;
   artist: string;
   album: string;
@@ -32,6 +32,9 @@ declare global {
   interface FileSystemFileHandle {
     queryPermission(descriptor?: { mode: 'read' | 'readwrite' }): Promise<PermissionState>;
     requestPermission(descriptor?: { mode: 'read' | 'readwrite' }): Promise<PermissionState>;
+  }
+  interface Window {
+    showDirectoryPicker(): Promise<FileSystemDirectoryHandle>;
   }
 }
 

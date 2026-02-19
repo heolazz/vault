@@ -3,15 +3,18 @@ import { Track, PlayerState, LibraryState } from '../types';
 import { db } from '../services/db';
 
 interface AppStore extends PlayerState, LibraryState {
-  activeView: 'library' | 'favorites'; 
-  setActiveView: (view: 'library' | 'favorites') => void;
+  activeView: 'library' | 'favorites' | 'settings';
+  setActiveView: (view: 'library' | 'favorites' | 'settings') => void;
+
+  theme: 'dark' | 'light';
+  toggleTheme: () => void;
 
   loadLibrary: () => Promise<void>;
   addTracks: (tracks: Track[]) => void;
   deleteTrack: (id: number) => Promise<void>;
   clearLibrary: () => Promise<void>;
   toggleFavorite: (track: Track) => Promise<void>;
-  
+
   playTrack: (track: Track) => void;
   nextTrack: () => void;
   prevTrack: () => void;
@@ -27,6 +30,7 @@ interface AppStore extends PlayerState, LibraryState {
 
 export const useAppStore = create<AppStore>((set, get) => ({
   activeView: 'library',
+  theme: 'dark',
   tracks: [],
   filteredTracks: [],
   currentTrack: undefined,
@@ -40,27 +44,29 @@ export const useAppStore = create<AppStore>((set, get) => ({
   duration: 0,
 
   setActiveView: (view) => {
-      set((state) => {
-          let newFiltered = state.tracks;
-          if (view === 'favorites') {
-              newFiltered = state.tracks.filter(t => t.isFavorite);
-          }
-          return { activeView: view, filteredTracks: newFiltered, searchQuery: '' };
-      });
+    set((state) => {
+      let newFiltered = state.tracks;
+      if (view === 'favorites') {
+        newFiltered = state.tracks.filter(t => t.isFavorite);
+      }
+      return { activeView: view, filteredTracks: newFiltered, searchQuery: '' };
+    });
   },
 
+  toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
+
   toggleFavorite: async (track) => {
-      const newStatus = !track.isFavorite;
-      await db.tracks.update(track.id, { isFavorite: newStatus });
-      set((state) => {
-          const updatedTracks = state.tracks.map((t) => t.id === track.id ? { ...t, isFavorite: newStatus } : t);
-          let updatedFiltered = state.filteredTracks.map((t) => t.id === track.id ? { ...t, isFavorite: newStatus } : t);
-          if (state.activeView === 'favorites' && !newStatus) {
-              updatedFiltered = updatedFiltered.filter(t => t.id !== track.id);
-          }
-          const updatedCurrent = state.currentTrack?.id === track.id ? { ...state.currentTrack, isFavorite: newStatus } : state.currentTrack;
-          return { tracks: updatedTracks, filteredTracks: updatedFiltered, currentTrack: updatedCurrent };
-      });
+    const newStatus = !track.isFavorite;
+    await db.tracks.update(track.id, { isFavorite: newStatus });
+    set((state) => {
+      const updatedTracks = state.tracks.map((t) => t.id === track.id ? { ...t, isFavorite: newStatus } : t);
+      let updatedFiltered = state.filteredTracks.map((t) => t.id === track.id ? { ...t, isFavorite: newStatus } : t);
+      if (state.activeView === 'favorites' && !newStatus) {
+        updatedFiltered = updatedFiltered.filter(t => t.id !== track.id);
+      }
+      const updatedCurrent = state.currentTrack?.id === track.id ? { ...state.currentTrack, isFavorite: newStatus } : state.currentTrack;
+      return { tracks: updatedTracks, filteredTracks: updatedFiltered, currentTrack: updatedCurrent };
+    });
   },
 
   loadLibrary: async () => {
@@ -88,8 +94,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     // 4. Jika hasilnya kosong (semua lagu sudah ada), hentikan proses.
     if (uniqueTracks.length === 0) {
-        console.log("No new unique tracks found.");
-        return;
+      console.log("No new unique tracks found.");
+      return;
     }
 
     // 5. Masukkan HANYA lagu yang unik ke Database
@@ -97,12 +103,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     // 6. Update State UI
     set((state) => {
-        const updated = [...state.tracks, ...uniqueTracks];
-        return { 
-            tracks: updated, 
-            filteredTracks: updated,
-            activeView: 'library' 
-        };
+      const updated = [...state.tracks, ...uniqueTracks];
+      return {
+        tracks: updated,
+        filteredTracks: updated,
+        activeView: 'library'
+      };
     });
   },
   // ------------------------------------
@@ -110,15 +116,15 @@ export const useAppStore = create<AppStore>((set, get) => ({
   deleteTrack: async (id) => {
     await db.tracks.delete(id);
     set((state) => {
-        const isCurrentTrack = state.currentTrack?.id === id;
-        const newTracks = state.tracks.filter((t) => t.id !== id);
-        const newFiltered = state.filteredTracks.filter((t) => t.id !== id);
-        return {
-            tracks: newTracks,
-            filteredTracks: newFiltered,
-            currentTrack: isCurrentTrack ? undefined : state.currentTrack,
-            isPlaying: isCurrentTrack ? false : state.isPlaying
-        };
+      const isCurrentTrack = state.currentTrack?.id === id;
+      const newTracks = state.tracks.filter((t) => t.id !== id);
+      const newFiltered = state.filteredTracks.filter((t) => t.id !== id);
+      return {
+        tracks: newTracks,
+        filteredTracks: newFiltered,
+        currentTrack: isCurrentTrack ? undefined : state.currentTrack,
+        isPlaying: isCurrentTrack ? false : state.isPlaying
+      };
     });
   },
 
@@ -128,27 +134,27 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
 
   verifyPermission: async (fileHandle) => {
-    if (!fileHandle) return true; 
+    if (!fileHandle) return true;
     const options = { mode: 'read' as const };
     try {
-        if ((await fileHandle.queryPermission(options)) === 'granted') return true;
-        if ((await fileHandle.requestPermission(options)) === 'granted') return true;
+      if ((await fileHandle.queryPermission(options)) === 'granted') return true;
+      if ((await fileHandle.requestPermission(options)) === 'granted') return true;
     } catch (e) { return true; }
     return false;
   },
 
   setSearchQuery: (query) => {
-      set((state) => {
-          let baseList = state.tracks;
-          if (state.activeView === 'favorites') baseList = state.tracks.filter(t => t.isFavorite);
-          return {
-              searchQuery: query,
-              filteredTracks: baseList.filter(t => 
-                  t.title.toLowerCase().includes(query.toLowerCase()) || 
-                  t.artist.toLowerCase().includes(query.toLowerCase())
-              )
-          };
-      });
+    set((state) => {
+      let baseList = state.tracks;
+      if (state.activeView === 'favorites') baseList = state.tracks.filter(t => t.isFavorite);
+      return {
+        searchQuery: query,
+        filteredTracks: baseList.filter(t =>
+          t.title.toLowerCase().includes(query.toLowerCase()) ||
+          t.artist.toLowerCase().includes(query.toLowerCase())
+        )
+      };
+    });
   },
 
   playTrack: (track) => set({ currentTrack: track, isPlaying: true }),
@@ -163,19 +169,19 @@ export const useAppStore = create<AppStore>((set, get) => ({
     if (!currentTrack || filteredTracks.length === 0) return;
     let nextIndex;
     if (isShuffle) {
-        nextIndex = Math.floor(Math.random() * filteredTracks.length);
+      nextIndex = Math.floor(Math.random() * filteredTracks.length);
     } else {
-        const currentIndex = filteredTracks.findIndex(t => t.id === currentTrack.id);
-        nextIndex = (currentIndex + 1) % filteredTracks.length;
+      const currentIndex = filteredTracks.findIndex(t => t.id === currentTrack.id);
+      nextIndex = (currentIndex + 1) % filteredTracks.length;
     }
     set({ currentTrack: filteredTracks[nextIndex], isPlaying: true });
   },
 
   prevTrack: () => {
-      const { filteredTracks, currentTrack } = get();
-      if (!currentTrack) return;
-      const currentIndex = filteredTracks.findIndex(t => t.id === currentTrack.id);
-      const prevIndex = (currentIndex - 1 + filteredTracks.length) % filteredTracks.length;
-      set({ currentTrack: filteredTracks[prevIndex], isPlaying: true });
+    const { filteredTracks, currentTrack } = get();
+    if (!currentTrack) return;
+    const currentIndex = filteredTracks.findIndex(t => t.id === currentTrack.id);
+    const prevIndex = (currentIndex - 1 + filteredTracks.length) % filteredTracks.length;
+    set({ currentTrack: filteredTracks[prevIndex], isPlaying: true });
   }
 }));
