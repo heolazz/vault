@@ -166,7 +166,6 @@ const Player: React.FC = () => {
                     onClick={() => setIsExpanded(true)}
                     className="
                 bg-white/95 dark:bg-[#252525]/95 backdrop-blur-xl border-t border-black/5 dark:border-white/10 
-                shadow-xl shadow-black/10 dark:shadow-black/40 
                 h-[64px] flex items-center pr-4 pl-4 
                 relative overflow-hidden cursor-pointer 
                 active:bg-black/5 dark:active:bg-white/5 transition-colors
